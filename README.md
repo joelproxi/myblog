@@ -1,1 +1,1 @@
-# Un blog complet contruite avec le framwork Django
+# Un blog complet contruit avec le framework Django
