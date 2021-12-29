@@ -1,14 +1,19 @@
+import json
+import time
 
-from django.shortcuts import render, get_object_or_404
+from django.http.response import HttpResponseRedirect, StreamingHttpResponse
+from django.shortcuts import redirect, render, get_object_or_404
 from django.core.paginator import (
     Paginator,
     EmptyPage,
     PageNotAnInteger,
 
 )
-from django.views import generic
+from django.core.serializers.json import DjangoJSONEncoder
+from django.contrib.postgres.search import SearchQuery,SearchVector, TrigramSimilarity
+
 from .models import Category, Comment, Post
-from blog.forms import CommentForm
+from blog.forms import CommentForm,  PostForm, SearchPost
 
 # Create your views here.
 
@@ -50,12 +55,12 @@ def post_detail(request, year: int, month: int, day: int, slug: str):
     if request.method == 'POST':
         comment_form = CommentForm(data=request.POST)
         if comment_form.is_valid():
-            username = comment_form.cleaned_data['username']
-            email = comment_form.cleaned_data['email']
             body = comment_form.cleaned_data['body']
             new_comment = comment_form.save(commit=False)
             new_comment.post = post
+            new_comment.author = request.user
             new_comment.save()
+            return redirect(post.get_absolute_url())
     else:
         comment_form = CommentForm()
     return render(request, 'blog/post/detail.html', {
@@ -65,3 +70,109 @@ def post_detail(request, year: int, month: int, day: int, slug: str):
         'new_comment': new_comment,
         'comment_form': comment_form,
     })
+
+
+def post_search(request):
+    query = None
+    results = []
+    search_form = SearchPost()
+    if 'query' in request.GET:
+        search_form = SearchPost(request.GET)
+        if search_form.is_valid():
+            query = search_form.cleaned_data['query']
+            vector_search = SearchVector('title', weight='A') + SearchVector( 'body', weight='B')
+            query_search = SearchQuery(query)
+            # results = Post.published.annotate(
+            #     search=vector_search, rank=SearchRank(vector_search, query_search )
+            #     ).filter(rank__gte=0.3).order_by('-rank')
+            results = Post.published.annotate(
+                                    similarity=TrigramSimilarity('title', query),
+                                    ).filter(similarity__gt=0.1).order_by('-similarity')
+    return render(request, 'blog/post/search.html', 
+                {
+                    'search_form': search_form,
+                    'query': query,
+                    'results': results,
+                    })
+    
+    
+
+
+def add_post(request):
+    if request.method=='POST':
+        form = PostForm(request.POST or None, request.FILES or None)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.author = request.user
+            obj.save()
+            return redirect('post_list')
+    else:
+        form = PostForm()
+    return render(request, 'blog/post/form.html', {'form': form})
+
+
+def post_update(request, year: int, month: int, day: int, slug: str):
+    post = get_object_or_404(Post, slug=slug, status='published',
+                             publish__year=year, publish__month=month, publish__day=day)
+    context = {}
+    if request.method == 'POST':
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(f'/{year}/{month}/{day}/{slug}/')
+    else:
+        form = PostForm(instance=post)
+    context['form'] = form
+    context['post'] = post
+    
+    return render(request, 'blog/post/form.html', context)
+
+
+
+
+def stream_view(request, post_id):
+    def event_stream():
+        initial_data = ''
+        while True:
+            comments = Comment.objects.filter(post__id=post_id)\
+                .values('body', 'created', 'author__username', 'post__id')
+            data = json.dumps(list(comments), cls=DjangoJSONEncoder)
+            if not initial_data == data:
+                yield '\n'
+                yield f'data: {data}'
+                yield '\n\n'
+                initial_data = data
+            time.sleep(1)
+    return StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+
+
+
+
+
+
+
+
+
+
+
+# def post_share(request, post_id):
+#     post = get_object_or_404(Post, id=post_id, status='published')
+#     sent = False
+#     if request.method == 'POST':
+#         form = EmailPostForm(request.POST)
+#         if form.is_valid():
+#             cd = form.cleaned_data
+#             post_url = request.build_absolute_uri(post.get_absolute_url())
+#             subject = f'{cd["name"]} vous recommande de lire {post.title} '
+#             message =  f"Lisez <h2> {post.title} </h2> a partir du lien {post_url} \n\n" \
+#                         f"{cd['name']}\'s Description: {cd['description']}"
+#             send_mail(subject, message, 'joelproxi@gmail.com', [cd['to']])
+#             sent = True
+#     else:
+#         form = EmailPostForm()
+#     return render(request, 'blog/post/share.html', {'form': form, 
+#                                                     'sent': sent, 
+#                                                     'post': post})
+    
+    
+            

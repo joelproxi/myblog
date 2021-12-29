@@ -18,4 +18,4 @@ class PostAmdin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class Comments(admin.ModelAdmin):
-    list_display = ['username', 'email', 'created']
+    list_display = [ 'created']
