@@ -13,8 +13,9 @@ urlpatterns = [
     path('search/', views.post_search, name='post_search'),
     path('add/', views.add_post, name='add_post'),
     path('<int:post_id>/stream/', views.stream_view, name='stream'),
+    
+    path('<int:post_id>/share/', views.post_share, name='post_share'),
   
-    # path('<int:post_id>/share/', views.post_share, name='post_share'),
 
     # path('', views.PostListView.as_view(), name='post_list'),
 ]

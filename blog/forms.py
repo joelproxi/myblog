@@ -29,8 +29,9 @@ class PostForm(forms.ModelForm):
         fields = ('title', 'body', 'category')
         
 
-# class EmailPostForm(forms.Form):
-#     name = forms.CharField()
-#     email = forms.EmailField()
-#     to = forms.EmailField(required=True)
-#     description = forms.CharField(required=False, widget=forms.Textarea)
+class EmailPostForm(forms.Form):
+    name = forms.CharField(max_length=20)
+    email = forms.EmailField()
+    to = forms.EmailField()
+    comments = forms.CharField(max_length=500, widget=forms.Textarea)
+    

@@ -11,9 +11,10 @@ from django.core.paginator import (
 )
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.postgres.search import SearchQuery,SearchVector, TrigramSimilarity
+from django.core.mail import send_mail
 
 from .models import Category, Comment, Post
-from blog.forms import CommentForm,  PostForm, SearchPost
+from blog.forms import CommentForm, EmailPostForm,  PostForm, SearchPost
 
 # Create your views here.
 
@@ -147,32 +148,24 @@ def stream_view(request, post_id):
 
 
 
-
-
-
-
-
-
-
-
-# def post_share(request, post_id):
-#     post = get_object_or_404(Post, id=post_id, status='published')
-#     sent = False
-#     if request.method == 'POST':
-#         form = EmailPostForm(request.POST)
-#         if form.is_valid():
-#             cd = form.cleaned_data
-#             post_url = request.build_absolute_uri(post.get_absolute_url())
-#             subject = f'{cd["name"]} vous recommande de lire {post.title} '
-#             message =  f"Lisez <h2> {post.title} </h2> a partir du lien {post_url} \n\n" \
-#                         f"{cd['name']}\'s Description: {cd['description']}"
-#             send_mail(subject, message, 'joelproxi@gmail.com', [cd['to']])
-#             sent = True
-#     else:
-#         form = EmailPostForm()
-#     return render(request, 'blog/post/share.html', {'form': form, 
-#                                                     'sent': sent, 
-#                                                     'post': post})
-    
-    
-            
+def post_share(request, post_id: int):
+    post = get_object_or_404(Post, id=post_id, status='published')
+    sent = False
+    context = {}
+    if request.method == 'POST':
+        form = EmailPostForm(request.POST)
+        if form.is_valid():
+            post_url = request.build_absolute_uri(post.get_absolute_url())  
+            cd = form.cleaned_data
+            subject = f"{cd['name']} vous recommande de lire {post.title}"  
+            message = f" lisez {post.title} au lien {post_url} \n\n" \
+                      f"{cd['name']} a laisé ce commentaire comment: {cd['comments']}"
+            send_mail(subject, message, cd['email'], [cd['to']]) 
+            sent = True
+    else:
+        form = EmailPostForm()
+    context['post'] = post
+    context['form'] = form
+    context['sent'] = sent
+    return render(request, 'blog/post/share.html', context)        
+              
