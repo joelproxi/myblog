@@ -5,6 +5,8 @@ from django.urls import reverse
 from django.utils.text import slugify
 # Create your models here.
 
+from ckeditor.fields import RichTextField
+
 
 class PublishedManager(models.Manager):
     def get_queryset(self):
@@ -28,7 +30,7 @@ class Post(models.Model):
     )
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200)
-    body = models.TextField()
+    body = RichTextField()
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     status = models.CharField(choices=STATUS_CHOICES,
