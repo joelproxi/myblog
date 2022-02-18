@@ -16,7 +16,7 @@ SECRET_KEY = 'django-insecure-8cj6^^fx_+44zd0e84)luq*^z^xd0bjk$ht8+=8k^g5$hwfw^-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [ ]
 
 
 # Application definition
@@ -33,12 +33,15 @@ INSTALLED_APPS = [
     'rest_framework',
     'ckeditor',
     
+    'debug_toolbar',
+    
     'blog.apps.BlogConfig',
     'accounts.apps.AccountsConfig',
   
 ]
 
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",#Django debug toolbar
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -150,3 +153,10 @@ EMAIL_HOST_USER = 'your email'
 EMAIL_HOST_PASSWORD = 'your password'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+
+
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]

@@ -17,7 +17,7 @@ class Category(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -51,6 +51,9 @@ class Post(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
         super(Post, self).save(*args, **kwargs)
+    
+    def get_comments(self):
+        return self.comments.all()
         
         
 
