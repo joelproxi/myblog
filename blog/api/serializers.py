@@ -41,5 +41,20 @@ class PostSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     
     # category = serializers.HyperlinkedRelatedField(view_name='category-detail', queryset=Category.objects.all())
-     
+
+class PostListSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Post
+        fields = ['id', 'title', 'body', 'category', 'author', 'created']
+
+    category = CategorySerializer()
+    
+   
+class AddPostSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Post
+        fields = [ 'title', 'body', 'category', 'author']
+ 
 

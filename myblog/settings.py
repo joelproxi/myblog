@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'django.contrib.postgres',
+    "corsheaders",
     'rest_framework',
     'ckeditor',
     
@@ -44,6 +45,7 @@ MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",#Django debug toolbar
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware", # cors headers
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -160,3 +162,5 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True

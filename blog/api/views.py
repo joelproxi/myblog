@@ -9,17 +9,17 @@ from rest_framework import serializers, status
 from rest_framework.generics import  ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
 from blog.models import Comment, Post
-from .serializers import CommentSerializer, PostSerializer
+from .serializers import AddPostSerializer, CommentSerializer, PostListSerializer, PostSerializer
 
 
 @api_view(['POST', 'GET'])
 def post_list(request):
     if request.method == 'GET':
         posts = Post.objects.select_related('category').all()
-        serializer = PostSerializer(posts, many=True , context={"request": request})
+        serializer = PostListSerializer(posts, many=True , context={"request": request})
         return Response(serializer.data)
     elif request.method == 'POST':
-        serializer = PostSerializer(data=request.data)
+        serializer = AddPostSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
