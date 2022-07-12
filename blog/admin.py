@@ -1,3 +1,4 @@
+from typing import List
 from django.contrib import admin
 
 
@@ -9,11 +10,12 @@ admin.site.register(Category)
 
 @admin.register(Post)
 class PostAmdin(admin.ModelAdmin):
-    list_display = ('title', 'status', 'created', 'publish', 'author')
+    list_display = ('title', 'status','tags', 'created', 'publish', 'author')
     prepopulated_fields = {'slug': ('title',)}
     search_fields = ('title', 'body')
     ordering = ('author', 'status', 'publish')
     list_filter = ('author', 'created', 'publish')
+    list_editable: List[str] = ['status', 'tags',]
 
 
 @admin.register(Comment)

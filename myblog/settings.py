@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "corsheaders",
     'rest_framework',
     'ckeditor',
+    'taggit',
     
     'debug_toolbar',
     

@@ -13,19 +13,26 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.postgres.search import SearchQuery,SearchVector, TrigramSimilarity
 from django.core.mail import send_mail
 
+from taggit.models import Tag
+
 from .models import Category, Comment, Post
 from blog.forms import CommentForm, EmailPostForm,  PostForm, SearchPost
 
 # Create your views here.
 
 
-def post_list(request, category=None):
+def post_list(request, category=None, tag_slug=None):
     posts = Post.published.all()
     categories = Category.objects.all()
+    tag = None
     if category:
         category = get_object_or_404(Category, slug=category)
         posts = posts.filter(category=category).order_by("publish")
-    paginator = Paginator(posts, 2)
+    
+    if tag_slug:
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        posts = posts.filter(tags__in=[tag])
+    paginator = Paginator(posts, 4)
     page = request.GET.get('page')
     try:
         posts = paginator.page(page)
@@ -38,6 +45,7 @@ def post_list(request, category=None):
         'page': page,
         'categories': categories,
         'category': category,
+        'tag': tag,
     }
     return render(request, 'blog/post/list.html', context)
 

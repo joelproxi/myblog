@@ -6,6 +6,7 @@ from django.utils.text import slugify
 # Create your models here.
 
 from ckeditor.fields import RichTextField
+from taggit.managers import TaggableManager
 
 
 class PublishedManager(models.Manager):
@@ -40,6 +41,7 @@ class Post(models.Model):
                                related_name='posted')
     objects = models.Manager()  # Default manager
     published = PublishedManager()  # Custom manager
+    tags = TaggableManager() # Tags manager
 
     def __str__(self):
         return self.title
