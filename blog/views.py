@@ -1,6 +1,7 @@
 import json
 import time
 
+from django.db.models import Count
 from django.http.response import HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.core.paginator import (
@@ -55,10 +56,17 @@ def post_list(request, category=None, tag_slug=None):
 #     template_name = 'blog/post/list.html'
 #     context_object_name = 'posts'
 
+#Recuperer tous les tags lies au post
+#Recuperer tous les post qui ont ete tagger avec ces tags
+#exclure le post actuel dans la liste des tags
+#Limiter le monbre post et recuperer les plus recent
 
 def post_detail(request, year: int, month: int, day: int, slug: str):
-    post = get_object_or_404(Post, slug=slug, status='published',
-                             publish__year=year, publish__month=month, publish__day=day)
+    post = get_object_or_404(Post, slug=slug, 
+                             status='published',
+                             publish__year=year, 
+                             publish__month=month, 
+                             publish__day=day)
     comments = Comment.objects.filter(post=post.id)
     new_comment = None
     if request.method == 'POST':
@@ -72,12 +80,18 @@ def post_detail(request, year: int, month: int, day: int, slug: str):
             return redirect(post.get_absolute_url())
     else:
         comment_form = CommentForm()
+
+    posts_tag_ids = post.tags.values_list('id', flat=True)
+    similar_post  = Post.published.filter(tags__in=posts_tag_ids).exclude(id=post.id)
+    similar_post = similar_post.annotate(same_tags=Count('tags')).order_by('-same_tags', '-publish')[:2]
+    # print(posts_tag_ids)                    
     return render(request, 'blog/post/detail.html', {
         'post': post,
         'comments': comments,
         'new_comment': new_comment,
         'new_comment': new_comment,
         'comment_form': comment_form,
+        'similar_post': similar_post,
     })
 
 
@@ -114,6 +128,7 @@ def add_post(request):
             obj = form.save(commit=False)
             obj.author = request.user
             obj.save()
+            form.save_m2m()
             return redirect('post_list')
     else:
         form = PostForm()

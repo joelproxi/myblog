@@ -26,7 +26,7 @@ class PostForm(forms.ModelForm):
     
     class Meta:
         model = Post
-        fields = ('title', 'body', 'category')
+        fields = ('title', 'body', 'category', 'tags',)
         
 
 class EmailPostForm(forms.Form):
