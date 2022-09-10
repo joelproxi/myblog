@@ -161,7 +161,7 @@ def stream_view(request, post_id):
             comments = Comment.objects.filter(post__id=post_id)\
                 .values('body', 'created', 'author__username', 'post__id')
             data = json.dumps(list(comments), cls=DjangoJSONEncoder)
-            print(data)
+            # print(data)
             if not initial_data == data:
                 yield '\n'
                 yield f'data: {data}'

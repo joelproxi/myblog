@@ -1,0 +1,23 @@
+
+{% extends "base.html" %}
+
+
+{% block content %}
+    <h1>Hello les gar cest  {{ request.user.username }} </h1>
+    <div class="row">
+        <div style="max-height: 80 ;" >
+            <img   width="80" height="80"  src="{{ user.photo.url }}" alt=" photo de {{ user.username }}">
+        </div>
+        <p>
+            Frist Name: {{user.user.first_name}}
+    
+        </p>
+        <p>
+            Last Name: {{user.user.last_name}}
+    
+        </p>
+    </div>
+    <div>
+        <a href="{% url 'edit_profie' %} ">Edit profile</a>
+    </div>
+{% endblock content %}
