@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    <!-- Page content-->
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Post content-->
+                <article>
+                    <!-- Post header-->
+                    <header class="mb-4">
+                        <!-- Post title-->
+                        <div class="row">
+                            <h1 class="fw-bolder mb-1 col-8">{{post.title}} </h1>
+                            <div class="row col-4">
+                                <a class="btn btn-secondary col-5 mx-1" href="{{post.get_absolute_url}}update/">
+                                    Update
+                                </a>
+                                <a class="btn btn-danger col-5" href=""> Delete</a>
+                            </div>
+                        </div>
+                        <!-- Post meta content-->
+                        <div class="text-muted fst-italic mb-2">Posted on {{post.publish}} by {{post.author.username}}</div>
+                        <!-- Post categories-->
+                        {% for tag in post.tags.all  %}
+                            <a class="badge bg-secondary text-decoration-none link-light" href="#!">{{ tag }}</a>                          
+                        {% endfor %}
+                        <a class="badge bg-secondary text-decoration-none link-dark" href="{% url 'post_share' post.id %}">share</a>
+                    </header>
+                    <!-- Preview image figure-->
+                    <!-- <figure class="mb-4"><img class="img-fluid rounded" src="https://dummyimage.com/900x400/ced4da/6c757d.jpg" alt="..." /></figure> -->
+                    <!-- Post content-->
+                    <section class="mb-5">
+                        <p class="fs-5 mb-4">{{post.body|safe}}</p>
+                    </section>
+                    
+                  
+                </article>
+                <!-- Comments section-->
+                <section class="mb-5">
+                    <div class="card bg-light">
+                        <h2> 
+                            {% with comments.count as total_comments %}
+                                {{total_comments}} comment{{total_comments|pluralize}}
+                            {% endwith %}
+                        </h2>
+                        <div class="card-body">
+                            <!-- Comment form-->
+                            {% if new_comment %}
+                              <h3> Your comment has been added</h3>
+                            {% else %}
+                                <h3> Add new comment</h3>
+                              <form action="" method="post" class="mb-5">
+                                  {{comment_form.as_p}}
+                                  {% csrf_token %}
+                                    
+                                  <button class="btn btn-primary" type="submit">Add comment</button>
+                              </form>
+                            {% endif %}
+                            
+    
+                            
+                           
+                            <!-- Single comment-->
+                              <div class="comment"></div>
+
+                           
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <!-- Side widgets-->
+            <div class="col-lg-4">
+                <!-- Search widget-->
+                <div class="card mb-4">
+                    <div class="card-header">Search</div>
+                    <div class="card-body">
+                        <div class="input-group">
+                            <input class="form-control" type="text" placeholder="Enter search term..." aria-label="Enter search term..." aria-describedby="button-search" />
+                            <button class="btn btn-primary" id="button-search" type="button">Go!</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Categories widget-->
+                <div class="card mb-4">
+                    <div class="card-header">Categories</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <ul class="list-unstyled mb-0">
+                                    <li><a href="#!">Web Design</a></li>
+                                    <li><a href="#!">HTML</a></li>
+                                    <li><a href="#!">Freebies</a></li>
+                                </ul>
+                            </div>
+                            <div class="col-sm-6">
+                                <ul class="list-unstyled mb-0">
+                                    <li><a href="#!">JavaScript</a></li>
+                                    <li><a href="#!">CSS</a></li>
+                                    <li><a href="#!">Tutorials</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Side widget-->
+                <div class="card mb-4">
+                    <div class="card-header">Side Widget</div>
+                    <div class="card-body">You can put anything you want inside of these side widgets. They are easy to use, and feature the Bootstrap 5 card component!</div>
+                </div>
+
+                <div class="card mb-4">
+                    {% for post in  similar_post %}
+                        <div class="card mb-4">
+                            <!-- <a href="#!"><img class="card-img-top" src="https://dummyimage.com/700x350/dee2e6/6c757d.jpg" alt="..." /></a> -->
+                            <div class="card-body">
+                                <div class="small text-muted">{{post.publish}}</div>
+                                <h2 class="card-title h4">{{post.title}}</h2>
+                                <p class="card-text">{{post.body|safe|truncatechars:50 }}</p>
+                                <a class="btn btn-primary" href="{{post.get_absolute_url}}">Read more →</a>
+                            </div>
+                            <div class="card-footer">
+                                Tags:
+                                {% for tag in post.tags.all %}
+                                    <a href="{% url 'tag_post_list' tag.slug %}">
+                                        #{{ tag.name }}
+                                    </a>
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                
+                </div>
+
+
+                
+            </div>
+        </div>
+        
+        
+        
+    </div>
+  
+{% endblock content %}
+
+
+{% block domReady %}
+  <script>
+    var eventSource = new EventSource(" {% url 'stream' post.id %} ");
+
+    eventSource.onopen = function(){
+        console.log('Ouverture de la source')
+    }
+
+    eventSource.onmessage = function(e){
+        const resp = JSON.parse(e.data)
+        content = ''
+        if (resp?.length <= 0){
+            content = "<h2> You  don't have a comment yet </h2>"
+        }else{
+            resp?.map(function(item, index){
+                content +=buildContent((index+1), 
+                        item['author__username'],
+                        item['body'],
+                        item['created'])
+            })
+        }
+        document.querySelector('.comment').innerHTML = content
+        console.log(resp)
+    }
+
+    eventSource.onerror = function(e){
+        console.error(e)
+    }
+
+    function buildContent(index, author, body, created){
+
+        const content = `
+            <div class="d-flex mb-2">
+                <div class="flex-shrink-0"><img class="rounded-circle" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="..." /></div>
+                <div class="ms-3">
+                    <div class="fw-bold">
+                    #${index} ${author} 
+                        <span class="text-muted"> at ${formatDate(created)} </span></div>
+                ${body}
+                </div>
+                {% if user.is_authenticated %}
+                    {% for group in user.groups.all  %}
+                        {% if group.name == 'Moderator' %}
+                            <div class="dropdown">
+                                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Option
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                    <li><a class="dropdown-item" href="#">Update</a></li>
+                                    <li><a class="dropdown-item" href="#">Delete</a></li>
+                                </ul>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                
+                {% endif %}
+        
+            </div>
+        `
+        return content
+    }
+
+    function formatDate(data){
+        let new_data = new Date(data);
+        return new_data.toUTCString().replace('GMT', '')
+    }
+
+  </script>
+{% endblock domReady %}

@@ -1,0 +1,129 @@
+[
+{
+  "model": "blog.category",
+  "pk": 1,
+  "fields": {
+    "name": "Python",
+    "slug": "python"
+  }
+},
+{
+  "model": "blog.category",
+  "pk": 2,
+  "fields": {
+    "name": "PHP",
+    "slug": "php"
+  }
+},
+{
+  "model": "blog.category",
+  "pk": 3,
+  "fields": {
+    "name": "JavaScript",
+    "slug": "javascript"
+  }
+},
+{
+  "model": "blog.category",
+  "pk": 4,
+  "fields": {
+    "name": "CSS",
+    "slug": "css"
+  }
+},
+{
+  "model": "blog.category",
+  "pk": 5,
+  "fields": {
+    "name": "Haskell",
+    "slug": "haskell"
+  }
+},
+{
+  "model": "blog.post",
+  "pk": 1,
+  "fields": {
+    "category": 1,
+    "title": "Le framework Django",
+    "slug": "le-framework-django",
+    "body": "Le framework Django Le framework Django Le framework Django Le framework Django",
+    "created": "2021-09-12T21:53:28.028Z",
+    "updated": "2021-10-03T07:01:04.303Z",
+    "status": "published",
+    "publish": "2021-09-12T21:52:55Z",
+    "author": 1
+  }
+},
+{
+  "model": "blog.post",
+  "pk": 2,
+  "fields": {
+    "category": 2,
+    "title": "Le framework Laravel",
+    "slug": "le-framework-laravel",
+    "body": "Le framework Laravel Le framework Laravel Le framework Laravel Le framework Laravel Le framework Laravel",
+    "created": "2021-09-12T21:54:02.437Z",
+    "updated": "2021-09-12T21:54:02.437Z",
+    "status": "draft",
+    "publish": "2021-09-12T21:53:32Z",
+    "author": 1
+  }
+},
+{
+  "model": "blog.post",
+  "pk": 3,
+  "fields": {
+    "category": 3,
+    "title": "Le framework NextJS",
+    "slug": "le-framework-nextjs",
+    "body": "Le framework NextJS Le framework NextJS Le framework NextJS Le framework NextJS",
+    "created": "2021-09-12T21:54:23.809Z",
+    "updated": "2021-10-03T07:01:23.825Z",
+    "status": "published",
+    "publish": "2021-09-12T21:54:02Z",
+    "author": 1
+  }
+},
+{
+  "model": "blog.post",
+  "pk": 4,
+  "fields": {
+    "category": 1,
+    "title": "Le framework FastAPI",
+    "slug": "le-framework-fastapi",
+    "body": "Le framework FastAPI Le framework FastAPI Le framework FastAPI Le framework FastAPI",
+    "created": "2021-09-12T21:54:59.826Z",
+    "updated": "2021-09-12T21:54:59.827Z",
+    "status": "draft",
+    "publish": "2021-09-12T21:54:26Z",
+    "author": 1
+  }
+},
+{
+  "model": "blog.post",
+  "pk": 5,
+  "fields": {
+    "category": 4,
+    "title": "Bootstrap 5",
+    "slug": "bootstrap-5",
+    "body": "Bootstrap 5 Bootstrap 5 Bootstrap 5 Bootstrap 5 Bootstrap 5 Bootstrap 5 Bootstrap 5 Bootstrap 5 Bootstrap 5 Bootstrap 5 Bootstrap 5 Bootstrap 5",
+    "created": "2021-10-03T07:02:37.300Z",
+    "updated": "2021-10-03T07:02:37.300Z",
+    "status": "published",
+    "publish": "2021-10-03T07:01:56Z",
+    "author": 1
+  }
+},
+{
+  "model": "blog.comment",
+  "pk": 7,
+  "fields": {
+    "post": 3,
+    "username": "brice Foding",
+    "email": "joeledmond95@gmail.com",
+    "body": "J'aime nextJs",
+    "created": "2021-10-21T13:30:45.041Z",
+    "updated": "2021-10-21T13:30:45.041Z"
+  }
+}
+]

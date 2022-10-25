@@ -1,0 +1,21 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+    {% if sent %}
+        <h1>E-mail a ete envoyé</h1>
+
+        <p>
+            "{{ post.title }}" a ete envoye chez {{ form.cleaned_data.to }}.
+        </p>
+    {% else %}
+        <h1>Partage "{{ post.title }}" par e-mail</h1>
+        <form method="post">
+            {{ form.as_p }}
+            {% csrf_token %}
+            <input type="submit" value="Send e-mail" class="btn btn-primary" >
+        </form>
+    {% endif %}
+
+{% endblock content %}
