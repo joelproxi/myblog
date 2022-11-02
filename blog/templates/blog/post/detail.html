@@ -13,12 +13,14 @@
                         <!-- Post title-->
                         <div class="row">
                             <h1 class="fw-bolder mb-1 col-8">{{post.title}} </h1>
-                            <div class="row col-4">
-                                <a class="btn btn-secondary col-5 mx-1" href="{{post.get_absolute_url}}update/">
-                                    Update
-                                </a>
-                                <a class="btn btn-danger col-5" href=""> Delete</a>
-                            </div>
+                            {% if user.perm.blog.delete or user == post.author %}
+                                <div class="row col-4">
+                                    <a class="btn btn-secondary col-5 mx-1" href="{{post.get_absolute_url}}update/">
+                                        Update
+                                    </a>
+                                    <a class="btn btn-danger col-5" href=""> Delete</a>
+                                </div>
+                            {% endif %}
                         </div>
                         <!-- Post meta content-->
                         <div class="text-muted fst-italic mb-2">Posted on {{post.publish}} by {{post.author.username}}</div>

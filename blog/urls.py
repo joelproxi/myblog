@@ -12,7 +12,10 @@ urlpatterns = [
     path('<int:year>/<int:month>/<int:day>/<slug>/update/',
          views.post_update, name='post_update'),
     path('search/', views.post_search, name='post_search'),
-    path('add/', views.add_post, name='add_post'),
+#     path('add/', views.add_post, name='add_post'),
+    
+    path('add/', views.AddPost.as_view(), name='add_post'),
+    
     path('<int:post_id>/stream/', views.stream_view, name='stream'),
     
     path('<int:post_id>/share/', views.post_share, name='post_share'),

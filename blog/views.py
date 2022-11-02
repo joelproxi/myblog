@@ -13,6 +13,10 @@ from django.core.paginator import (
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.postgres.search import SearchQuery,SearchVector, TrigramSimilarity
 from django.core.mail import send_mail
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
+from django.views.generic.base import TemplateView
+from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
+from django.utils.decorators import method_decorator
 
 from taggit.models import Tag
 
@@ -117,10 +121,12 @@ def post_search(request):
                     'query': query,
                     'results': results,
                     })
-    
+  
+def is_moderator(user):
+    return user.groups.filter(name='Author').exists()  
     
 
-
+@user_passes_test(is_moderator)
 def add_post(request):
     if request.method=='POST':
         form = PostForm(request.POST or None, request.FILES or None)
@@ -134,6 +140,25 @@ def add_post(request):
         form = PostForm()
     return render(request, 'blog/post/form.html', {'form': form})
 
+
+@method_decorator(user_passes_test(is_moderator), name='get')
+class AddPost(LoginRequiredMixin, TemplateView):
+    template_name: str = 'blog/post/form.html'
+    permission_required = 'blog.add_post'
+    
+    def get(self, request):
+        form = PostForm()
+        return self.render_to_response({'form': form})
+    
+    def post(self, request):
+        form = PostForm(request.POST or None, request.FILES or None)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.author = request.user
+            obj.save()
+            form.save_m2m()
+            return redirect('post_list')
+        return self.render_to_response({'form': form})
 
 def post_update(request, year: int, month: int, day: int, slug: str):
     post = get_object_or_404(Post, slug=slug, status='published',
