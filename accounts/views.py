@@ -17,9 +17,12 @@ def login_view(request):
                 login(request, user)
                 return redirect('post_list')
             else: 
-                return render(request, 'registration/login.html', {})
+                return render(request, 'registration/login.html', { 
+                                                                    'session': 'login',
+                                                                   })
         else:
-            return render(request, 'registration/login.html', {})
+            return render(request, 'registration/login.html', { 
+                                                                'session': 'login',})
     else:
         return redirect('post_list')
            
@@ -40,10 +43,16 @@ def register_view(request):
             new_user.save()
             return redirect('login_view')
         else:
-            return render(request, 'registration/register.html', {'user_form': user_form})
+            return render(request, 'registration/register.html', { 
+                                                                  'user_form': user_form,
+                                                                    'session': 'signup',
+                                                                  
+                                                                  })
     else:
         user_form = RegistrationForm()
-    return render(request, 'registration/register.html', {'user_form': user_form})
+    return render(request, 'registration/register.html', { 
+                                                          'user_form': user_form,
+                                                             'session': 'signup',})
 
 
 
@@ -72,3 +81,8 @@ def editProfile(request):
                                       )
     return render(request, 'profile/edit.html', {'user_form': user_form,
                                                  'profile_form': profile_form})
+    
+    
+    
+    
+    

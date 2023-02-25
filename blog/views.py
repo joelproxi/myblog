@@ -2,7 +2,11 @@ import json
 import time
 
 from django.db.models import Count
-from django.http.response import HttpResponseRedirect, StreamingHttpResponse
+from django.http.response import (
+    HttpResponseRedirect, 
+    StreamingHttpResponse, 
+    JsonResponse
+    )
 from django.shortcuts import redirect, render, get_object_or_404
 from django.core.paginator import (
     Paginator,
@@ -11,13 +15,17 @@ from django.core.paginator import (
 
 )
 from django.core.serializers.json import DjangoJSONEncoder
-from django.contrib.postgres.search import SearchQuery,SearchVector, TrigramSimilarity
+from django.contrib.postgres.search import(
+    SearchQuery,
+    SearchVector, 
+    TrigramSimilarity
+    )
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.views.generic.base import TemplateView
 from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.utils.decorators import method_decorator
-
+from django.views.decorators.http import require_POST
 from taggit.models import Tag
 
 from .models import Category, Comment, Post
@@ -51,6 +59,7 @@ def post_list(request, category=None, tag_slug=None):
         'categories': categories,
         'category': category,
         'tag': tag,
+        'session': 'home',
     }
     return render(request, 'blog/post/list.html', context)
 
@@ -61,7 +70,7 @@ def post_list(request, category=None, tag_slug=None):
 #     context_object_name = 'posts'
 
 #Recuperer tous les tags lies au post
-#Recuperer tous les post qui ont ete tagger avec ces tags
+# #Recuperer tous les post qui ont ete tagger avec ces tags
 #exclure le post actuel dans la liste des tags
 #Limiter le monbre post et recuperer les plus recent
 
@@ -98,6 +107,23 @@ def post_detail(request, year: int, month: int, day: int, slug: str):
         'similar_post': similar_post,
     })
 
+@require_POST
+def ajax_comment(request):
+    post_id = request.POST.get('id')
+    comment = request.POST.get('comment')
+    if post_id and comment:
+        try:
+            post = Post.objects.get(id=post_id)
+            print(post.id, comment)
+            Comment.objects.get_or_create(post=post, 
+                                          author=request.user, 
+                                          body=comment)
+            
+            return JsonResponse({'status': 'success'})
+        except Post.DoesNotExist:
+            pass
+    return JsonResponse({'status': 'error'})
+    
 
 def post_search(request):
     query = None
@@ -142,9 +168,9 @@ def add_post(request):
 
 
 @method_decorator(user_passes_test(is_moderator), name='get')
-class AddPost(LoginRequiredMixin, TemplateView):
+class AddPost(LoginRequiredMixin, TemplateView, PermissionRequiredMixin):
     template_name: str = 'blog/post/form.html'
-    permission_required = 'blog.add_post'
+
     
     def get(self, request):
         form = PostForm()
@@ -159,6 +185,7 @@ class AddPost(LoginRequiredMixin, TemplateView):
             form.save_m2m()
             return redirect('post_list')
         return self.render_to_response({'form': form})
+
 
 def post_update(request, year: int, month: int, day: int, slug: str):
     post = get_object_or_404(Post, slug=slug, status='published',

@@ -17,6 +17,7 @@ urlpatterns = [
     path('add/', views.AddPost.as_view(), name='add_post'),
     
     path('<int:post_id>/stream/', views.stream_view, name='stream'),
+    path('ajax-comment/', views.ajax_comment, name='ajax_comment'),
     
     path('<int:post_id>/share/', views.post_share, name='post_share'),
   

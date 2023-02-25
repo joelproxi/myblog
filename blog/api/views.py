@@ -1,6 +1,6 @@
 
 
-from amqp import NotFound
+
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 
@@ -31,10 +31,10 @@ def post_list(request):
 def post_detail(request, id):
     post = get_object_or_404(Post, pk=id)
     if request.method == 'GET':
-        serializer = PostSerializer(post)
+        serializer = PostListSerializer(post)
         return Response(serializer.data)
     elif request.method == 'PUT':
-        serializer = PostSerializer(post, data=request.data)
+        serializer = PostListSerializer(post, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)

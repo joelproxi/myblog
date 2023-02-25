@@ -31,6 +31,7 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ['id', 'title', 'body', 'category', 'author', 'created', 'comments' ]
+        
     # id = serializers.IntegerField()
     # title = serializers.CharField(max_length=200)
     # slug = serializers.SlugField(max_length=200)
